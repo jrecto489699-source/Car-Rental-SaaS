@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, Zap, Loader2 } from 'lucide-react'
+import { X, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react'
+import RMLogo from '@/components/RMLogo'
 import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
 
@@ -131,8 +132,8 @@ export default function CustomerAuthModal({ isOpen, onClose, onSuccess, redirect
                 <button onClick={onClose} className="absolute right-4 top-4 p-2 rounded-xl transition-colors hover:bg-gray-100">
                   <X size={16} style={{ color: '#9ca3af' }} />
                 </button>
-                <div className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', boxShadow: '0 8px 20px rgba(59,130,246,0.35)' }}>
-                  <Zap size={20} className="text-white" fill="currentColor" />
+                <div className="mx-auto mb-3 flex items-center justify-center">
+                  <RMLogo size={56} />
                 </div>
                 <h2 className="text-lg font-bold" style={{ color: '#111827' }}>
                   {tab === 'signup' ? 'Create your account' : 'Welcome back'}

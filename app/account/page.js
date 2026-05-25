@@ -4,7 +4,8 @@ import { useState, useEffect, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Loader2, CheckCircle, Zap, Car } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Loader2, CheckCircle, Car } from 'lucide-react'
+import RMLogo from '@/components/RMLogo'
 import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
 
@@ -172,11 +173,8 @@ function AccountContent() {
         </div>
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 relative z-10">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', boxShadow: '0 8px 20px rgba(59,130,246,0.4)' }}>
-            <Zap size={18} className="text-white" fill="currentColor" />
-          </div>
-          <span className="text-xl font-bold text-white">Drive<span style={{ color: '#60a5fa' }}>Flow</span></span>
+        <Link href="/" className="relative z-10">
+          <RMLogo size={80} />
         </Link>
 
         {/* Main copy */}
@@ -225,11 +223,8 @@ function AccountContent() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="flex justify-between items-center mb-8 lg:hidden">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', boxShadow: '0 4px 12px rgba(59,130,246,0.3)' }}>
-                <Zap size={16} className="text-white" fill="currentColor" />
-              </div>
-              <span className="text-lg font-bold" style={{ color: '#111827' }}>Drive<span style={{ color: '#3b82f6' }}>Flow</span></span>
+            <Link href="/">
+              <RMLogo size={52} />
             </Link>
             <Link href="/login" className="text-xs font-medium" style={{ color: '#9ca3af' }}>Admin Login →</Link>
           </div>
