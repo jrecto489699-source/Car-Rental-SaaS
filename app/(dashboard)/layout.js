@@ -41,7 +41,7 @@ export default function DashboardLayout({ children }) {
   }
 
   return (
-    <div className="flex h-screen bg-slate-950 overflow-hidden">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Desktop Sidebar */}
       <Sidebar onSignOut={handleSignOut} />
 
@@ -59,7 +59,7 @@ export default function DashboardLayout({ children }) {
           onSignOut={handleSignOut}
           onMobileMenuToggle={() => setMobileMenuOpen(true)}
         />
-        <main className="flex-1 overflow-y-auto bg-slate-950">
+        <main className="flex-1 overflow-y-auto bg-gray-50">
           <div className="max-w-screen-2xl mx-auto">
             {children}
           </div>
