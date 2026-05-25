@@ -173,10 +173,10 @@ function AccountContent() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 relative z-10">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)', boxShadow: '0 8px 20px rgba(249,115,22,0.4)' }}>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', boxShadow: '0 8px 20px rgba(59,130,246,0.4)' }}>
             <Zap size={18} className="text-white" fill="currentColor" />
           </div>
-          <span className="text-xl font-bold text-white">Drive<span style={{ color: '#f97316' }}>Flow</span></span>
+          <span className="text-xl font-bold text-white">Drive<span style={{ color: '#60a5fa' }}>Flow</span></span>
         </Link>
 
         {/* Main copy */}
@@ -226,10 +226,10 @@ function AccountContent() {
           {/* Mobile logo */}
           <div className="flex justify-between items-center mb-8 lg:hidden">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}>
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', boxShadow: '0 4px 12px rgba(59,130,246,0.3)' }}>
                 <Zap size={16} className="text-white" fill="currentColor" />
               </div>
-              <span className="text-lg font-bold" style={{ color: '#111827' }}>Drive<span style={{ color: '#f97316' }}>Flow</span></span>
+              <span className="text-lg font-bold" style={{ color: '#111827' }}>Drive<span style={{ color: '#3b82f6' }}>Flow</span></span>
             </Link>
             <Link href="/login" className="text-xs font-medium" style={{ color: '#9ca3af' }}>Admin Login →</Link>
           </div>

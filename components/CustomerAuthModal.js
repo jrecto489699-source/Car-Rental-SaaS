@@ -131,7 +131,7 @@ export default function CustomerAuthModal({ isOpen, onClose, onSuccess, redirect
                 <button onClick={onClose} className="absolute right-4 top-4 p-2 rounded-xl transition-colors hover:bg-gray-100">
                   <X size={16} style={{ color: '#9ca3af' }} />
                 </button>
-                <div className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)', boxShadow: '0 8px 20px rgba(249,115,22,0.3)' }}>
+                <div className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', boxShadow: '0 8px 20px rgba(59,130,246,0.35)' }}>
                   <Zap size={20} className="text-white" fill="currentColor" />
                 </div>
                 <h2 className="text-lg font-bold" style={{ color: '#111827' }}>

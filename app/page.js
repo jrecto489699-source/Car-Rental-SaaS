@@ -67,7 +67,21 @@ function Navbar() {
             ))}
           </div>
 
-          <div className="rm-nav-cta" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div className="rm-nav-cta" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Link href="/account" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '10px 20px', borderRadius: 50,
+              background: scrolled ? 'white' : 'rgba(255,255,255,0.12)',
+              color: scrolled ? '#374151' : 'white',
+              fontSize: 14, fontWeight: 600, textDecoration: 'none',
+              border: scrolled ? '1.5px solid #e5e7eb' : '1.5px solid rgba(255,255,255,0.3)',
+              transition: 'all 0.2s', fontFamily: sans,
+            }}
+              onMouseEnter={e => { e.currentTarget.style.background = scrolled ? '#f3f4f6' : 'rgba(255,255,255,0.22)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = scrolled ? 'white' : 'rgba(255,255,255,0.12)'; e.currentTarget.style.transform = 'translateY(0)' }}
+            >
+              Sign Up
+            </Link>
             <Link href="/cars" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '10px 24px', borderRadius: 50,
@@ -108,12 +122,21 @@ function Navbar() {
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             >{item.label}</Link>
           ))}
-          <Link href="/cars" onClick={() => setOpen(false)} style={{
-            display: 'block', margin: '8px 0 0', padding: '14px 16px',
-            borderRadius: 50, background: '#f97316', color: 'white',
-            textAlign: 'center', fontSize: 15, fontWeight: 700,
-            textDecoration: 'none', fontFamily: sans,
-          }}>Reserve a Car</Link>
+          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+            <Link href="/account" onClick={() => setOpen(false)} style={{
+              flex: 1, display: 'block', padding: '14px 16px',
+              borderRadius: 50, background: 'white', color: '#374151',
+              textAlign: 'center', fontSize: 15, fontWeight: 600,
+              textDecoration: 'none', fontFamily: sans,
+              border: '1.5px solid #e5e7eb',
+            }}>Sign Up</Link>
+            <Link href="/cars" onClick={() => setOpen(false)} style={{
+              flex: 1, display: 'block', padding: '14px 16px',
+              borderRadius: 50, background: '#f97316', color: 'white',
+              textAlign: 'center', fontSize: 15, fontWeight: 700,
+              textDecoration: 'none', fontFamily: sans,
+            }}>Reserve a Car</Link>
+          </div>
         </div>
       )}
     </>
