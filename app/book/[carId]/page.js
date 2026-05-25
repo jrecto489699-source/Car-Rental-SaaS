@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Car, Calendar, User, Phone, Mail, MapPin, FileText, CreditCard, ArrowLeft, ArrowRight, CheckCircle, Zap as ZapIcon, ChevronRight, Loader2, AlertCircle, Banknote, Clock } from 'lucide-react'
 import RMLogo from '@/components/RMLogo'
+import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
 
 const ID_TYPES = ["Driver's License", 'Passport', 'National ID', 'SSS ID', 'PhilHealth ID', "Voter's ID", 'PRC ID', 'UMID']
@@ -63,6 +64,21 @@ function BookingFormContent() {
       .catch(() => router.push('/cars'))
       .finally(() => setCarLoading(false))
   }, [carId, router])
+
+  // Pre-fill form from logged-in customer account
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      const meta = user.user_metadata || {}
+      setForm(f => ({
+        ...f,
+        customer_name: f.customer_name || meta.full_name || '',
+        customer_email: f.customer_email || user.email || '',
+        customer_phone: f.customer_phone || meta.phone || '',
+      }))
+    })
+  }, [])
 
   const totalDays = form.start_date && form.end_date && form.end_date > form.start_date
     ? Math.ceil((new Date(form.end_date) - new Date(form.start_date)) / (1000 * 60 * 60 * 24)) : 0

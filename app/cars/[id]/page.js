@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Car, Fuel, Settings2, Calendar, ArrowLeft, ArrowRight, CheckCircle, Zap, Shield, Clock, ChevronRight, AlertCircle, MapPin, Palette, Gauge, BadgeCheck, Phone, Star } from 'lucide-react'
 import RMLogo from '@/components/RMLogo'
+import CustomerAuthModal from '@/components/CustomerAuthModal'
+import { createClient } from '@/lib/supabase/client'
 
 function SpecBox({ icon: Icon, label, value }) {
   return (
@@ -29,6 +31,7 @@ export default function CarDetailPage() {
   const [endDate, setEndDate] = useState('')
   const [availability, setAvailability] = useState(null)
   const [checkingAvailability, setCheckingAvailability] = useState(false)
+  const [authModal, setAuthModal] = useState(false)
   const today = new Date().toISOString().split('T')[0]
 
   useEffect(() => {
@@ -57,8 +60,18 @@ export default function CarDetailPage() {
     ? Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) : 0
   const totalAmount = totalDays * (car ? Number(car.price_per_day) : 0)
 
-  const handleBook = () => {
+  const handleBook = async () => {
     if (!startDate || !endDate) return
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      router.push(`/book/${id}?from=${startDate}&to=${endDate}`)
+    } else {
+      setAuthModal(true)
+    }
+  }
+
+  const handleAuthSuccess = () => {
     router.push(`/book/${id}?from=${startDate}&to=${endDate}`)
   }
 
@@ -260,6 +273,13 @@ export default function CarDetailPage() {
           </div>
         </div>
       </div>
+
+      <CustomerAuthModal
+        isOpen={authModal}
+        onClose={() => setAuthModal(false)}
+        onSuccess={handleAuthSuccess}
+        redirectMessage="Sign up or log in to book this vehicle"
+      />
     </div>
   )
 }

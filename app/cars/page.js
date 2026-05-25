@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Car, Fuel, Settings2, Search, X, Zap, ArrowRight, SlidersHorizontal, MapPin, Users, ChevronDown, Truck, Bus, CarFront } from 'lucide-react'
 import RMLogo from '@/components/RMLogo'
+import CustomerAuthModal from '@/components/CustomerAuthModal'
+import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
 
 const DEMO_CARS = [
@@ -39,8 +41,7 @@ function TypeIcon({ type, size = 14 }) {
   return <Icon size={size} />
 }
 
-function CarCard({ car, index }) {
-  const router = useRouter()
+function CarCard({ car, index, onBook }) {
   const isDemo = car.id.startsWith('demo-')
 
   const handleClick = () => {
@@ -48,7 +49,7 @@ function CarCard({ car, index }) {
       toast('These are sample vehicles. Add real cars in your admin dashboard.')
       return
     }
-    router.push(`/cars/${car.id}`)
+    onBook(car.id)
   }
 
   return (
@@ -122,6 +123,23 @@ function CarsContent() {
   const [loading, setLoading] = useState(true)
   const [isDemo, setIsDemo] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [authModal, setAuthModal] = useState(false)
+  const [pendingCarId, setPendingCarId] = useState(null)
+
+  const handleBook = async (carId) => {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      router.push(`/cars/${carId}`)
+    } else {
+      setPendingCarId(carId)
+      setAuthModal(true)
+    }
+  }
+
+  const handleAuthSuccess = () => {
+    if (pendingCarId) router.push(`/cars/${pendingCarId}`)
+  }
 
   const [filters, setFilters] = useState({
     type: searchParams.get('type') || 'All Types',
@@ -327,10 +345,17 @@ function CarsContent() {
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-            {displayed.map((car, i) => <CarCard key={car.id} car={car} index={i} />)}
+            {displayed.map((car, i) => <CarCard key={car.id} car={car} index={i} onBook={handleBook} />)}
           </div>
         )}
       </div>
+
+      <CustomerAuthModal
+        isOpen={authModal}
+        onClose={() => setAuthModal(false)}
+        onSuccess={handleAuthSuccess}
+        redirectMessage="Sign up or log in to book this vehicle"
+      />
     </div>
   )
 }
