@@ -9,7 +9,7 @@ import {
   Globe, ChevronRight, ArrowRight, CheckCircle, Shield,
   Fuel, Users, AlertCircle, Loader2, Info, Clock, Banknote, BadgeCheck
 } from 'lucide-react'
-import RMLogo from '@/components/RMLogo'
+import BrandLogo from '@/components/BrandLogo'
 import toast from 'react-hot-toast'
 
 const COUNTRIES = [
@@ -240,7 +240,7 @@ function BookingFormContent() {
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-3">
-              <RMLogo size={48} />
+              <BrandLogo size={48} />
             </Link>
             <ChevronRight size={14} style={{ color: '#d1d5db' }} />
             <span className="text-sm font-semibold" style={{ color: '#374151' }}>Rent with Driver</span>

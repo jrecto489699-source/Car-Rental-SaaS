@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Car, Fuel, Settings2, Calendar, ArrowLeft, ArrowRight, CheckCircle, Zap, Shield, Clock, ChevronRight, AlertCircle, MapPin, Palette, Gauge, BadgeCheck, Phone, Star } from 'lucide-react'
-import RMLogo from '@/components/RMLogo'
+import BrandLogo from '@/components/BrandLogo'
 import CustomerAuthModal from '@/components/CustomerAuthModal'
 import { createClient } from '@/lib/supabase/client'
 
@@ -100,7 +100,7 @@ export default function CarDetailPage() {
       <nav style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(20px)', borderBottom: '1px solid #e5e7eb', position: 'sticky', top: 0, zIndex: 40, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '12px 24px', display: 'flex', alignItems: 'center', gap: 12 }}>
           <Link href="/" className="flex items-center gap-3">
-            <RMLogo size={48} />
+            <BrandLogo size={48} />
           </Link>
           <ChevronRight size={14} style={{ color: '#d1d5db' }} />
           <Link href="/cars" className="text-sm font-medium transition-colors hover:text-orange-500" style={{ color: '#6b7280' }}>Browse Cars</Link>

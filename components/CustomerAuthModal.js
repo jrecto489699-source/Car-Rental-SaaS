@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Mail, Lock, User, Phone, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react'
-import RMLogo from '@/components/RMLogo'
+import BrandLogo from '@/components/BrandLogo'
 import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
 
@@ -133,7 +133,7 @@ export default function CustomerAuthModal({ isOpen, onClose, onSuccess, redirect
                   <X size={16} style={{ color: '#9ca3af' }} />
                 </button>
                 <div className="mx-auto mb-3 flex items-center justify-center">
-                  <RMLogo size={56} />
+                  <BrandLogo size={56} />
                 </div>
                 <h2 className="text-lg font-bold" style={{ color: '#111827' }}>
                   {tab === 'signup' ? 'Create your account' : 'Welcome back'}

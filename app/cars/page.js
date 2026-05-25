@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Car, Fuel, Settings2, Search, X, Zap, ArrowRight, SlidersHorizontal, MapPin, Users, ChevronDown, Truck, Bus, CarFront } from 'lucide-react'
-import RMLogo from '@/components/RMLogo'
+import BrandLogo from '@/components/BrandLogo'
 import CustomerAuthModal from '@/components/CustomerAuthModal'
 import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
@@ -202,7 +202,7 @@ function CarsContent() {
           <div className="flex items-center gap-3">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 shrink-0">
-              <RMLogo size={48} />
+              <BrandLogo size={48} />
             </Link>
 
             {/* Breadcrumb */}

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Loader2, CheckCircle, Car } from 'lucide-react'
-import RMLogo from '@/components/RMLogo'
+import BrandLogo from '@/components/BrandLogo'
 import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
 
@@ -174,7 +174,7 @@ function AccountContent() {
 
         {/* Logo */}
         <Link href="/" className="relative z-10">
-          <RMLogo size={80} />
+          <BrandLogo size={80} dark />
         </Link>
 
         {/* Main copy */}
@@ -224,7 +224,7 @@ function AccountContent() {
           {/* Mobile logo */}
           <div className="flex justify-between items-center mb-8 lg:hidden">
             <Link href="/">
-              <RMLogo size={52} />
+              <BrandLogo size={52} />
             </Link>
             <Link href="/login" className="text-xs font-medium" style={{ color: '#9ca3af' }}>Admin Login →</Link>
           </div>

@@ -8,7 +8,7 @@ import {
   Search, ArrowRight, Car, Fuel, Settings2,
   Phone, MapPin, Menu, X, ChevronDown, CheckCircle
 } from 'lucide-react'
-import RMLogo from '@/components/RMLogo'
+import BrandLogo from '@/components/BrandLogo'
 
 const DEMO_CARS = [
   { id: 'demo-1', make: 'Toyota', model: 'Fortuner', year: 2023, type: 'SUV', transmission: 'Automatic', fuel: 'Diesel', price_per_day: 3500, image_url: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80' },
@@ -51,7 +51,7 @@ function Navbar() {
         }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 70 }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-            <RMLogo size={54} />
+            <BrandLogo size={54} />
           </Link>
 
           <div className="rm-nav-links" style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -663,7 +663,7 @@ export default function HomePage() {
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div className="rm-footer-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 56, marginBottom: 64 }}>
             <div>
-              <RMLogo size={60} />
+              <BrandLogo size={60} dark />
               <p style={{ fontSize: 14, color: '#4a4a4a', lineHeight: 1.8, marginTop: 20, maxWidth: 320, fontFamily: sans }}>
                 RM Car Rental Services has been helping people get around since 2022. We're a local business that takes pride in every single rental.
               </p>
