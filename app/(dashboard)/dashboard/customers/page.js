@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import {
-  Plus, Search, Users, Phone, Mail, MapPin,
-  Edit2, Trash2, Eye, Car, Calendar, DollarSign, Star
+  Plus, Search, Users, Eye, Edit2, Trash2,
+  DollarSign, Star, Car
 } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
@@ -13,7 +13,7 @@ import EmptyState from '@/components/ui/EmptyState'
 import Avatar from '@/components/ui/Avatar'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
-import { formatDate } from '@/lib/utils'
+import { formatDate, cn } from '@/lib/utils'
 import { CUSTOMER_ID_TYPES } from '@/lib/constants'
 import toast from 'react-hot-toast'
 
@@ -145,7 +145,7 @@ function CustomerForm({ customer, onSave, onCancel }) {
         <Select label="ID Type" value={form.id_type} onChange={update('id_type')} options={CUSTOMER_ID_TYPES} placeholder={null} />
         <Input label="ID Number" value={form.id_number} onChange={update('id_number')} placeholder="ID number" />
       </div>
-      <div className="flex gap-3 mt-6 pt-4 border-t border-white/8">
+      <div className="flex gap-3 mt-6 pt-4 border-t border-gray-100">
         <Button variant="ghost" type="button" onClick={onCancel} className="flex-1">Cancel</Button>
         <Button type="submit" loading={loading} className="flex-1">{customer ? 'Update Customer' : 'Add Customer'}</Button>
       </div>
@@ -183,31 +183,39 @@ export default function CustomersPage() {
   const totalRevenue = customers.reduce((s, c) => s + getCustomerStats(c).total_spent, 0)
   const vipCount = customers.filter(c => c.status === 'vip').length
 
+  const STATUS_TABS = [
+    { key: 'all', label: 'All' },
+    { key: 'active', label: 'Active' },
+    { key: 'vip', label: 'VIP' },
+    { key: 'blacklisted', label: 'Blacklisted' },
+  ]
+
   return (
     <div className="p-6 space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Customer Database</h1>
-          <p className="text-sm text-slate-400 mt-1">{customers.length} registered · {vipCount} VIP</p>
+          <h1 className="text-2xl font-bold text-gray-900">Customer Database</h1>
+          <p className="text-sm text-gray-500 mt-1 font-medium">{customers.length} registered · {vipCount} VIP</p>
         </div>
         <Button onClick={() => { setEditingCustomer(null); setShowModal(true) }} icon={<Plus size={16} />}>
           Add Customer
         </Button>
       </motion.div>
 
-      {/* Summary */}
+      {/* Summary cards */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: 'Total Customers', value: customers.length, sub: `${vipCount} VIP`, icon: <Users size={16} />, color: 'text-blue-400' },
-          { label: 'Total Revenue', value: `₱${totalRevenue.toLocaleString()}`, sub: 'lifetime', icon: <DollarSign size={16} />, color: 'text-emerald-400' },
-          { label: 'Avg. Per Customer', value: `₱${Math.round(totalRevenue / customers.length).toLocaleString()}`, sub: 'lifetime spend', icon: <Star size={16} />, color: 'text-amber-400' },
+          { label: 'Total Customers', value: customers.length, sub: `${vipCount} VIP`, icon: <Users size={16} />, iconBg: 'bg-blue-100', iconColor: 'text-blue-700', valueColor: 'text-gray-900', accentBar: 'bg-blue-500' },
+          { label: 'Total Revenue', value: `₱${totalRevenue.toLocaleString()}`, sub: 'lifetime', icon: <DollarSign size={16} />, iconBg: 'bg-emerald-100', iconColor: 'text-emerald-700', valueColor: 'text-emerald-700', accentBar: 'bg-emerald-500' },
+          { label: 'Avg. Per Customer', value: `₱${Math.round(totalRevenue / customers.length).toLocaleString()}`, sub: 'lifetime spend', icon: <Star size={16} />, iconBg: 'bg-amber-100', iconColor: 'text-amber-700', valueColor: 'text-amber-700', accentBar: 'bg-amber-500' },
         ].map((s, i) => (
-          <div key={i} className="p-4 rounded-xl bg-slate-900/60 border border-white/8 flex items-center gap-3">
-            <div className={`p-2.5 rounded-xl bg-slate-800 ${s.color}`}>{s.icon}</div>
+          <div key={i} className="relative p-4 rounded-xl bg-white border border-gray-200 shadow-sm overflow-hidden flex items-center gap-3">
+            <div className={`absolute top-0 left-0 right-0 h-0.5 ${s.accentBar}`} />
+            <div className={`p-2.5 rounded-xl ${s.iconBg} ${s.iconColor} shrink-0`}>{s.icon}</div>
             <div>
-              <p className="text-xs text-slate-400">{s.label}</p>
-              <p className={`text-lg font-bold ${s.color}`}>{s.value}</p>
-              <p className="text-xs text-slate-500">{s.sub}</p>
+              <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide">{s.label}</p>
+              <p className={`text-lg font-bold ${s.valueColor}`}>{s.value}</p>
+              <p className="text-xs text-gray-400 font-medium">{s.sub}</p>
             </div>
           </div>
         ))}
@@ -216,16 +224,19 @@ export default function CustomersPage() {
       {/* Filters */}
       <div className="flex gap-3">
         <div className="relative flex-1 max-w-sm">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, email, phone..."
-            className="w-full bg-slate-900/60 border border-white/10 rounded-xl text-sm text-white placeholder:text-slate-500 py-2.5 pl-10 pr-4 focus:outline-none focus:border-blue-500/40"
+            className="w-full bg-white border border-gray-200 rounded-xl text-sm text-gray-900 placeholder:text-gray-400 py-2.5 pl-10 pr-4 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all shadow-sm font-medium"
           />
         </div>
-        <div className="flex items-center gap-1 bg-slate-900/60 border border-white/10 rounded-xl p-1">
-          {['all', 'active', 'vip', 'blacklisted'].map(s => (
-            <button key={s} onClick={() => setStatusFilter(s)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${statusFilter === s ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>
-              {s === 'all' ? 'All' : s.toUpperCase()}
+        <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1 shadow-sm">
+          {STATUS_TABS.map(s => (
+            <button key={s.key} onClick={() => setStatusFilter(s.key)}
+              className={cn(
+                'px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all',
+                statusFilter === s.key ? 'bg-orange-500 text-white' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+              )}>
+              {s.label}
             </button>
           ))}
         </div>
@@ -235,66 +246,66 @@ export default function CustomersPage() {
       {filtered.length === 0 ? (
         <EmptyState icon={<Users size={28} />} title="No customers found" description="Add your first customer to get started." action={() => setShowModal(true)} actionLabel="Add Customer" />
       ) : (
-        <div className="rounded-2xl border border-white/8 bg-slate-900/60 overflow-hidden">
+        <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/8">
+                <tr className="border-b border-gray-100 bg-gray-50">
                   {['Customer', 'Contact', 'ID', 'Total Bookings', 'Total Spent', 'Last Booking Date', 'Last Car Rented', 'Member Since', 'Status', 'Actions'].map(h => (
-                    <th key={h} className="px-4 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                    <th key={h} className="px-4 py-3.5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-gray-50">
                 {filtered.map((customer, i) => {
                   const stats = getCustomerStats(customer)
                   return (
-                    <motion.tr key={customer.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }} className="hover:bg-white/3 transition-colors">
+                    <motion.tr key={customer.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }} className="hover:bg-orange-50/30 transition-colors">
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
                           <Avatar name={customer.name} size="sm" />
                           <div>
-                            <p className="text-sm font-medium text-white whitespace-nowrap">{customer.name}</p>
+                            <p className="text-sm font-bold text-gray-900 whitespace-nowrap">{customer.name}</p>
                             {customer.status === 'vip' && (
-                              <span className="text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">VIP</span>
+                              <span className="text-xs px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 font-bold">VIP</span>
                             )}
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-4">
-                        <p className="text-sm text-slate-300">{customer.phone}</p>
-                        {customer.email && <p className="text-xs text-slate-500">{customer.email}</p>}
+                        <p className="text-sm text-gray-800 font-semibold">{customer.phone}</p>
+                        {customer.email && <p className="text-xs text-gray-500 font-medium">{customer.email}</p>}
                       </td>
                       <td className="px-4 py-4">
-                        <p className="text-xs text-slate-400">{customer.id_type}</p>
-                        <p className="text-xs font-mono text-slate-500">{customer.id_number}</p>
+                        <p className="text-xs text-gray-600 font-semibold">{customer.id_type}</p>
+                        <p className="text-xs font-mono text-gray-500">{customer.id_number}</p>
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-sm font-bold text-white">{stats.total_bookings}</span>
-                          <span className="text-xs text-slate-500">bookings</span>
+                          <span className="text-sm font-bold text-gray-900">{stats.total_bookings}</span>
+                          <span className="text-xs text-gray-400 font-medium">bookings</span>
                         </div>
                       </td>
                       <td className="px-4 py-4">
-                        <p className="text-sm font-semibold text-emerald-400">₱{stats.total_spent.toLocaleString()}</p>
+                        <p className="text-sm font-bold text-emerald-700">₱{stats.total_spent.toLocaleString()}</p>
                       </td>
                       <td className="px-4 py-4">
-                        <p className="text-sm text-slate-300">{stats.last_booking_date ? formatDate(stats.last_booking_date) : '—'}</p>
+                        <p className="text-sm text-gray-700 font-semibold">{stats.last_booking_date ? formatDate(stats.last_booking_date) : '—'}</p>
                       </td>
                       <td className="px-4 py-4">
-                        <p className="text-sm text-slate-300 whitespace-nowrap">{stats.last_car || '—'}</p>
+                        <p className="text-sm text-gray-700 font-medium whitespace-nowrap">{stats.last_car || '—'}</p>
                       </td>
                       <td className="px-4 py-4">
-                        <p className="text-xs text-slate-400">{formatDate(customer.joined)}</p>
+                        <p className="text-xs text-gray-600 font-semibold">{formatDate(customer.joined)}</p>
                       </td>
                       <td className="px-4 py-4">
                         <Badge status={customer.status} />
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-1.5">
-                          <button onClick={() => setViewCustomer(customer)} className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/8 transition-colors"><Eye size={14} /></button>
-                          <button onClick={() => { setEditingCustomer(customer); setShowModal(true) }} className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/8 transition-colors"><Edit2 size={14} /></button>
-                          <button onClick={() => setDeleteConfirm(customer.id)} className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/8 transition-colors"><Trash2 size={14} /></button>
+                          <button onClick={() => setViewCustomer(customer)} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"><Eye size={14} /></button>
+                          <button onClick={() => { setEditingCustomer(customer); setShowModal(true) }} className="p-1.5 rounded-lg text-gray-400 hover:text-orange-600 hover:bg-orange-50 transition-colors"><Edit2 size={14} /></button>
+                          <button onClick={() => setDeleteConfirm(customer.id)} className="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"><Trash2 size={14} /></button>
                         </div>
                       </td>
                     </motion.tr>
@@ -315,17 +326,17 @@ export default function CustomersPage() {
         return (
           <Modal isOpen={!!viewCustomer} onClose={() => setViewCustomer(null)} title="Customer History" size="lg">
             <div className="space-y-4">
-              <div className="flex items-center gap-4 p-4 rounded-xl bg-slate-800/40">
+              <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
                 <Avatar name={viewCustomer.name} size="xl" />
                 <div>
-                  <h3 className="text-lg font-bold text-white">{viewCustomer.name}</h3>
-                  <p className="text-sm text-slate-400">{viewCustomer.email}</p>
-                  <p className="text-sm text-slate-400">{viewCustomer.phone}</p>
+                  <h3 className="text-lg font-bold text-gray-900">{viewCustomer.name}</h3>
+                  <p className="text-sm text-gray-500 font-medium">{viewCustomer.email}</p>
+                  <p className="text-sm text-gray-500 font-medium">{viewCustomer.phone}</p>
                 </div>
                 <div className="ml-auto text-right">
-                  <p className="text-xs text-slate-500">Total Spent</p>
-                  <p className="text-2xl font-bold text-emerald-400">₱{stats.total_spent.toLocaleString()}</p>
-                  <p className="text-xs text-slate-500">{stats.total_bookings} bookings</p>
+                  <p className="text-xs text-gray-500 font-medium">Total Spent</p>
+                  <p className="text-2xl font-bold text-emerald-700">₱{stats.total_spent.toLocaleString()}</p>
+                  <p className="text-xs text-gray-400 font-medium">{stats.total_bookings} bookings</p>
                 </div>
               </div>
 
@@ -336,30 +347,30 @@ export default function CustomersPage() {
                   { label: 'Last Booking', value: stats.last_booking_date ? formatDate(stats.last_booking_date) : '—' },
                   { label: 'Last Car', value: stats.last_car || '—' },
                 ].map(({ label, value }) => (
-                  <div key={label} className="bg-slate-800/40 rounded-xl p-3">
-                    <p className="text-xs text-slate-500 mb-1">{label}</p>
-                    <p className="text-sm font-semibold text-white">{value}</p>
+                  <div key={label} className="bg-gray-50 border border-gray-100 rounded-xl p-3">
+                    <p className="text-xs text-gray-500 font-semibold mb-1">{label}</p>
+                    <p className="text-sm font-bold text-gray-900">{value}</p>
                   </div>
                 ))}
               </div>
 
               <div>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Booking History</p>
-                <div className="rounded-xl border border-white/8 overflow-hidden">
+                <p className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-3">Booking History</p>
+                <div className="rounded-xl border border-gray-200 overflow-hidden">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-white/8">
-                        <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-400">Date</th>
-                        <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-400">Vehicle</th>
-                        <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-400">Amount</th>
+                      <tr className="border-b border-gray-100 bg-gray-50">
+                        <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-600">Date</th>
+                        <th className="px-4 py-2.5 text-left text-xs font-bold text-gray-600">Vehicle</th>
+                        <th className="px-4 py-2.5 text-right text-xs font-bold text-gray-600">Amount</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5">
+                    <tbody className="divide-y divide-gray-50">
                       {viewCustomer.bookings.map((b, i) => (
-                        <tr key={i} className="hover:bg-white/3 transition-colors">
-                          <td className="px-4 py-2.5 text-sm text-slate-300">{formatDate(b.date)}</td>
-                          <td className="px-4 py-2.5 text-sm text-white">{b.car}</td>
-                          <td className="px-4 py-2.5 text-sm text-emerald-400 text-right font-medium">₱{b.amount.toLocaleString()}</td>
+                        <tr key={i} className="hover:bg-orange-50/30 transition-colors">
+                          <td className="px-4 py-2.5 text-sm text-gray-700 font-medium">{formatDate(b.date)}</td>
+                          <td className="px-4 py-2.5 text-sm text-gray-900 font-semibold">{b.car}</td>
+                          <td className="px-4 py-2.5 text-sm text-emerald-700 text-right font-bold">₱{b.amount.toLocaleString()}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -373,7 +384,7 @@ export default function CustomersPage() {
 
       <Modal isOpen={!!deleteConfirm} onClose={() => setDeleteConfirm(null)} title="Delete Customer" size="sm"
         footer={<><Button variant="ghost" onClick={() => setDeleteConfirm(null)}>Cancel</Button><Button variant="danger" onClick={() => { setCustomers(prev => prev.filter(c => c.id !== deleteConfirm)); setDeleteConfirm(null); toast.success('Customer deleted') }}>Delete</Button></>}>
-        <p className="text-sm text-slate-400">This will delete the customer profile. Booking history will be preserved.</p>
+        <p className="text-sm text-gray-600 font-medium">This will delete the customer profile. Booking history will be preserved.</p>
       </Modal>
     </div>
   )
