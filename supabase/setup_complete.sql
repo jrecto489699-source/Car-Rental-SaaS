@@ -1,6 +1,7 @@
 -- ============================================================
--- DriveFlow — Database Setup
+-- DriveFlow — Complete Database Setup (Run This Once)
 -- Paste this entire file into Supabase SQL Editor and click Run
+-- https://supabase.com/dashboard/project/qbtnsrvyboihrxhiaati/sql/new
 -- ============================================================
 
 -- 1. UUID Extension
@@ -60,6 +61,7 @@ CREATE TABLE IF NOT EXISTS public.customers (
   id_number TEXT,
   id_image_url TEXT,
   total_bookings INTEGER DEFAULT 0,
+  total_spent NUMERIC(10,2) DEFAULT 0,
   notes TEXT,
   status TEXT DEFAULT 'active' CHECK (status IN ('active','vip','blacklisted','inactive')),
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -76,12 +78,20 @@ CREATE TABLE IF NOT EXISTS public.bookings (
   vehicle_plate TEXT,
   customer_name TEXT,
   customer_phone TEXT,
+  customer_email TEXT,
+  customer_address TEXT,
+  driver_name TEXT,
+  driver_license TEXT,
+  id_type TEXT,
+  id_number TEXT,
   start_date DATE NOT NULL,
   end_date DATE NOT NULL,
   price_per_day NUMERIC(10,2) NOT NULL,
   total_days INTEGER NOT NULL,
   total_amount NUMERIC(10,2) NOT NULL,
+  other_fees NUMERIC(10,2) DEFAULT 0,
   deposit_amount NUMERIC(10,2) DEFAULT 0,
+  amount_paid NUMERIC(10,2) DEFAULT 0,
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending','confirmed','active','completed','cancelled','overdue')),
   payment_status TEXT DEFAULT 'unpaid' CHECK (payment_status IN ('unpaid','partial','paid','refunded')),
   payment_method TEXT DEFAULT 'Cash',
@@ -134,6 +144,8 @@ CREATE INDEX IF NOT EXISTS idx_bookings_vehicle ON public.bookings(vehicle_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_customer ON public.bookings(customer_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON public.bookings(status);
 CREATE INDEX IF NOT EXISTS idx_bookings_dates ON public.bookings(start_date, end_date);
+CREATE INDEX IF NOT EXISTS idx_bookings_customer_email ON public.bookings(customer_email);
+CREATE INDEX IF NOT EXISTS idx_bookings_ref ON public.bookings(booking_ref);
 CREATE INDEX IF NOT EXISTS idx_expenses_owner ON public.expenses(owner_id);
 CREATE INDEX IF NOT EXISTS idx_expenses_category ON public.expenses(category);
 CREATE INDEX IF NOT EXISTS idx_expenses_date ON public.expenses(date);
@@ -263,16 +275,10 @@ DO $$ BEGIN
   END IF;
 END $$;
 
--- ============================================================
--- 6. PUBLIC CUSTOMER BOOKING POLICIES
--- These allow the customer-facing booking flow to work
--- via the service role key in server-side API routes.
--- No additional RLS changes needed — service role bypasses RLS.
--- Run this if you want direct client-side reads of available vehicles:
--- ============================================================
-
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'vehicles_public_read' AND tablename = 'vehicles') THEN
     CREATE POLICY "vehicles_public_read" ON public.vehicles FOR SELECT USING (status = 'available');
   END IF;
 END $$;
+
+SELECT 'DriveFlow database setup complete!' AS status;

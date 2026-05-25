@@ -1,23 +1,21 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   DollarSign, Car, Calendar, Users, TrendingUp,
-  TrendingDown, AlertCircle, CheckCircle2, Clock, ArrowRight
+  AlertCircle, CheckCircle2, Clock, ArrowRight, ArrowUpRight, Zap
 } from 'lucide-react'
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell
+  ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts'
-import { StatCard } from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
-import { formatCurrency, formatDate, formatDateRelative } from '@/lib/utils'
+import { formatCurrency, formatDate } from '@/lib/utils'
 import { DEMO_STATS, MONTHS, CHART_COLORS } from '@/lib/constants'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 
-// Demo chart data
 const revenueData = MONTHS.map((month, i) => ({
   month,
   revenue: [28000, 32000, 38000, 35000, 42000, 48000, 45000, 52000, 58000, 62000, 68000, 72000][i],
@@ -40,20 +38,20 @@ const recentBookings = [
 ]
 
 const recentActivity = [
-  { icon: <CheckCircle2 size={14} />, text: 'Booking BK-001 confirmed', time: '2 min ago', color: 'text-emerald-400' },
-  { icon: <Car size={14} />, text: 'Honda Civic returned safely', time: '20 min ago', color: 'text-blue-400' },
-  { icon: <DollarSign size={14} />, text: 'Payment ₱10,500 received', time: '1 hour ago', color: 'text-emerald-400' },
-  { icon: <AlertCircle size={14} />, text: 'Maintenance scheduled: Toyota Vios', time: '2 hours ago', color: 'text-amber-400' },
-  { icon: <Users size={14} />, text: 'New customer: Ana Garcia registered', time: '3 hours ago', color: 'text-purple-400' },
+  { icon: <CheckCircle2 size={14} />, text: 'Booking BK-001 confirmed', time: '2 min ago', color: 'text-emerald-400', dot: 'bg-emerald-400' },
+  { icon: <Car size={14} />, text: 'Honda Civic returned safely', time: '20 min ago', color: 'text-blue-400', dot: 'bg-blue-400' },
+  { icon: <DollarSign size={14} />, text: 'Payment ₱10,500 received', time: '1 hour ago', color: 'text-emerald-400', dot: 'bg-emerald-400' },
+  { icon: <AlertCircle size={14} />, text: 'Maintenance scheduled: Toyota Vios', time: '2 hours ago', color: 'text-amber-400', dot: 'bg-amber-400' },
+  { icon: <Users size={14} />, text: 'New customer: Ana Garcia registered', time: '3 hours ago', color: 'text-purple-400', dot: 'bg-purple-400' },
 ]
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-slate-800 border border-white/10 rounded-xl p-3 shadow-xl">
+    <div className="bg-slate-800/95 border border-white/10 rounded-xl p-3 shadow-2xl backdrop-blur-sm">
       <p className="text-xs font-semibold text-white mb-2">{label}</p>
       {payload.map((entry, i) => (
-        <p key={i} className="text-xs" style={{ color: entry.color }}>
+        <p key={i} className="text-xs mb-0.5" style={{ color: entry.color }}>
           {entry.name}: {formatCurrency(entry.value, 'PHP')}
         </p>
       ))}
@@ -61,42 +59,70 @@ const CustomTooltip = ({ active, payload, label }) => {
   )
 }
 
-export default function DashboardPage() {
-  const [stats, setStats] = useState(DEMO_STATS)
-  const [loading, setLoading] = useState(false)
+const statCards = (stats) => [
+  {
+    title: 'Total Revenue',
+    value: formatCurrency(stats.totalRevenue, 'PHP'),
+    change: '+24.5%',
+    changeLabel: 'vs last month',
+    icon: DollarSign,
+    color: 'emerald',
+    gradient: 'from-emerald-500/20 to-emerald-500/5',
+    border: 'border-emerald-500/20',
+    iconBg: 'bg-emerald-500/15',
+    iconColor: 'text-emerald-400',
+    changeColor: 'text-emerald-400',
+  },
+  {
+    title: 'Monthly Profit',
+    value: formatCurrency(stats.monthlyProfit, 'PHP'),
+    change: '+18.2%',
+    changeLabel: 'vs last month',
+    icon: TrendingUp,
+    color: 'blue',
+    gradient: 'from-blue-500/20 to-blue-500/5',
+    border: 'border-blue-500/20',
+    iconBg: 'bg-blue-500/15',
+    iconColor: 'text-blue-400',
+    changeColor: 'text-blue-400',
+  },
+  {
+    title: 'Active Rentals',
+    value: stats.activeRentals.toString(),
+    changeLabel: `${stats.totalBookings} total bookings`,
+    icon: Calendar,
+    color: 'purple',
+    gradient: 'from-purple-500/20 to-purple-500/5',
+    border: 'border-purple-500/20',
+    iconBg: 'bg-purple-500/15',
+    iconColor: 'text-purple-400',
+    changeColor: 'text-slate-400',
+  },
+  {
+    title: 'Fleet Available',
+    value: `${stats.availableVehicles}/${stats.totalVehicles}`,
+    changeLabel: `${stats.totalVehicles - stats.availableVehicles} currently rented`,
+    icon: Car,
+    color: 'cyan',
+    gradient: 'from-cyan-500/20 to-cyan-500/5',
+    border: 'border-cyan-500/20',
+    iconBg: 'bg-cyan-500/15',
+    iconColor: 'text-cyan-400',
+    changeColor: 'text-slate-400',
+  },
+]
 
-  const statCards = [
-    {
-      title: 'Total Revenue',
-      value: formatCurrency(stats.totalRevenue, 'PHP'),
-      change: 24.5,
-      changeLabel: 'vs last month',
-      icon: <DollarSign size={18} />,
-      color: 'emerald',
-    },
-    {
-      title: 'Monthly Profit',
-      value: formatCurrency(stats.monthlyProfit, 'PHP'),
-      change: 18.2,
-      changeLabel: 'vs last month',
-      icon: <TrendingUp size={18} />,
-      color: 'blue',
-    },
-    {
-      title: 'Active Rentals',
-      value: stats.activeRentals.toString(),
-      changeLabel: `${stats.totalBookings} total bookings`,
-      icon: <Calendar size={18} />,
-      color: 'purple',
-    },
-    {
-      title: 'Fleet Available',
-      value: `${stats.availableVehicles}/${stats.totalVehicles}`,
-      changeLabel: `${stats.totalVehicles - stats.availableVehicles} currently rented`,
-      icon: <Car size={18} />,
-      color: 'cyan',
-    },
-  ]
+function getGreeting() {
+  const h = new Date().getHours()
+  if (h < 12) return 'Good morning'
+  if (h < 18) return 'Good afternoon'
+  return 'Good evening'
+}
+
+export default function DashboardPage() {
+  const [stats] = useState(DEMO_STATS)
+
+  const cards = statCards(stats)
 
   return (
     <div className="p-6 space-y-6">
@@ -104,35 +130,51 @@ export default function DashboardPage() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between"
+        className="flex items-start justify-between"
       >
         <div>
-          <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-          <p className="text-sm text-slate-400 mt-1">
-            {formatDate(new Date(), 'EEEE, MMMM dd, yyyy')} · Overview of your rental business
-          </p>
+          <p className="text-xs text-slate-500 mb-0.5">{formatDate(new Date(), 'EEEE, MMMM dd, yyyy')}</p>
+          <h1 className="text-2xl font-bold text-white">{getGreeting()} 👋</h1>
+          <p className="text-sm text-slate-400 mt-0.5">Here's what's happening with your fleet today.</p>
         </div>
-        <Link
-          href="/dashboard/bookings/new"
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-all hover:-translate-y-px shadow-lg shadow-blue-500/25"
-        >
-          New Booking
-          <ArrowRight size={14} />
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/dashboard/bookings"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-all hover:-translate-y-px shadow-lg shadow-blue-500/25 active:translate-y-0"
+          >
+            <Zap size={14} fill="currentColor" />
+            New Booking
+          </Link>
+        </div>
       </motion.div>
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {statCards.map((card, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.08 }}
-          >
-            <StatCard {...card} loading={loading} />
-          </motion.div>
-        ))}
+        {cards.map((card, i) => {
+          const Icon = card.icon
+          return (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.07 }}
+              className={`relative p-5 rounded-2xl border bg-gradient-to-br ${card.gradient} ${card.border} overflow-hidden group hover:-translate-y-0.5 transition-transform duration-200`}
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className={`p-2.5 rounded-xl ${card.iconBg}`}>
+                  <Icon size={18} className={card.iconColor} />
+                </div>
+                <ArrowUpRight size={14} className="text-slate-600 group-hover:text-slate-400 transition-colors" />
+              </div>
+              <p className="text-xs text-slate-400 mb-1">{card.title}</p>
+              <p className="text-2xl font-bold text-white tracking-tight">{card.value}</p>
+              <p className={`text-xs mt-1 ${card.changeColor}`}>
+                {card.change && <span className="font-semibold">{card.change} </span>}
+                <span className="text-slate-500">{card.changeLabel}</span>
+              </p>
+            </motion.div>
+          )
+        })}
       </div>
 
       {/* Charts row */}
@@ -142,51 +184,47 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="xl:col-span-2 p-6 rounded-2xl border border-white/8 bg-slate-900/60 backdrop-blur-sm"
+          className="xl:col-span-2 p-6 rounded-2xl border border-white/[0.07] bg-slate-900/70 backdrop-blur-sm"
         >
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-base font-semibold text-white">Revenue vs Expenses</h3>
-              <p className="text-xs text-slate-400 mt-0.5">Monthly comparison for 2025</p>
+              <h3 className="text-sm font-semibold text-white">Revenue vs Expenses</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Monthly comparison · 2025</p>
             </div>
             <div className="flex items-center gap-4 text-xs">
-              <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-blue-500" />
-                <span className="text-slate-400">Revenue</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-rose-500" />
-                <span className="text-slate-400">Expenses</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="text-slate-400">Profit</span>
-              </div>
+              {[
+                { color: 'bg-blue-500', label: 'Revenue' },
+                { color: 'bg-rose-500', label: 'Expenses' },
+                { color: 'bg-emerald-500', label: 'Profit' },
+              ].map(({ color, label }) => (
+                <div key={label} className="flex items-center gap-1.5">
+                  <div className={`w-2 h-2 rounded-full ${color}`} />
+                  <span className="text-slate-500">{label}</span>
+                </div>
+              ))}
             </div>
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={revenueData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
               <defs>
-                <linearGradient id="revenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="expenses" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#F43F5E" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#F43F5E" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="profit" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
-                </linearGradient>
+                {[
+                  { id: 'grad-revenue', color: '#3B82F6' },
+                  { id: 'grad-expenses', color: '#F43F5E' },
+                  { id: 'grad-profit', color: '#10B981' },
+                ].map(({ id, color }) => (
+                  <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={color} stopOpacity={0.25} />
+                    <stop offset="95%" stopColor={color} stopOpacity={0} />
+                  </linearGradient>
+                ))}
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-              <XAxis dataKey="month" tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#64748B', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `₱${(v/1000).toFixed(0)}k`} />
+              <XAxis dataKey="month" tick={{ fill: '#475569', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#475569', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `₱${(v/1000).toFixed(0)}k`} />
               <Tooltip content={<CustomTooltip />} />
-              <Area type="monotone" dataKey="revenue" stroke="#3B82F6" strokeWidth={2} fill="url(#revenue)" name="Revenue" />
-              <Area type="monotone" dataKey="expenses" stroke="#F43F5E" strokeWidth={2} fill="url(#expenses)" name="Expenses" />
-              <Area type="monotone" dataKey="profit" stroke="#10B981" strokeWidth={2} fill="url(#profit)" name="Profit" />
+              <Area type="monotone" dataKey="revenue" stroke="#3B82F6" strokeWidth={2} fill="url(#grad-revenue)" name="Revenue" />
+              <Area type="monotone" dataKey="expenses" stroke="#F43F5E" strokeWidth={2} fill="url(#grad-expenses)" name="Expenses" />
+              <Area type="monotone" dataKey="profit" stroke="#10B981" strokeWidth={2} fill="url(#grad-profit)" name="Profit" />
             </AreaChart>
           </ResponsiveContainer>
         </motion.div>
@@ -196,10 +234,10 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="p-6 rounded-2xl border border-white/8 bg-slate-900/60 backdrop-blur-sm"
+          className="p-6 rounded-2xl border border-white/[0.07] bg-slate-900/70 backdrop-blur-sm"
         >
-          <h3 className="text-base font-semibold text-white mb-1">Fleet Status</h3>
-          <p className="text-xs text-slate-400 mb-4">24 vehicles total</p>
+          <h3 className="text-sm font-semibold text-white mb-0.5">Fleet Status</h3>
+          <p className="text-xs text-slate-500 mb-4">24 vehicles total</p>
           <ResponsiveContainer width="100%" height={180}>
             <PieChart>
               <Pie
@@ -212,7 +250,7 @@ export default function DashboardPage() {
                 dataKey="value"
               >
                 {vehicleStatusData.map((entry, i) => (
-                  <Cell key={i} fill={entry.color} opacity={0.85} />
+                  <Cell key={i} fill={entry.color} opacity={0.9} />
                 ))}
               </Pie>
               <Tooltip
@@ -222,16 +260,37 @@ export default function DashboardPage() {
               />
             </PieChart>
           </ResponsiveContainer>
-          <div className="space-y-2 mt-2">
+          <div className="space-y-2.5 mt-2">
             {vehicleStatusData.map((item, i) => (
               <div key={i} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full" style={{ background: item.color }} />
                   <span className="text-xs text-slate-400">{item.name}</span>
                 </div>
-                <span className="text-xs font-medium text-white">{item.value}</span>
+                <div className="flex items-center gap-2">
+                  <div className="h-1 rounded-full bg-slate-800 w-16">
+                    <div className="h-1 rounded-full" style={{ background: item.color, width: `${(item.value / 24) * 100}%` }} />
+                  </div>
+                  <span className="text-xs font-semibold text-white w-4 text-right">{item.value}</span>
+                </div>
               </div>
             ))}
+          </div>
+
+          {/* Quick summary */}
+          <div className="mt-5 pt-4 border-t border-white/[0.07] space-y-2">
+            <div className="flex justify-between text-xs">
+              <span className="text-slate-500">Monthly Revenue</span>
+              <span className="text-white font-medium">{formatCurrency(stats.monthlyRevenue, 'PHP')}</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-slate-500">Monthly Expenses</span>
+              <span className="text-rose-400 font-medium">{formatCurrency(stats.monthlyExpenses, 'PHP')}</span>
+            </div>
+            <div className="flex justify-between text-xs pt-2 border-t border-white/[0.07]">
+              <span className="text-slate-300 font-medium">Net Profit</span>
+              <span className="text-emerald-400 font-semibold">{formatCurrency(stats.monthlyProfit, 'PHP')}</span>
+            </div>
           </div>
         </motion.div>
       </div>
@@ -243,29 +302,32 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="xl:col-span-2 rounded-2xl border border-white/8 bg-slate-900/60 backdrop-blur-sm overflow-hidden"
+          className="xl:col-span-2 rounded-2xl border border-white/[0.07] bg-slate-900/70 backdrop-blur-sm overflow-hidden"
         >
-          <div className="flex items-center justify-between p-6 border-b border-white/8">
-            <h3 className="text-base font-semibold text-white">Recent Bookings</h3>
-            <Link href="/dashboard/bookings" className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07]">
+            <div>
+              <h3 className="text-sm font-semibold text-white">Recent Bookings</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Latest rental activity</p>
+            </div>
+            <Link href="/dashboard/bookings" className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors font-medium">
               View all <ArrowRight size={12} />
             </Link>
           </div>
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-white/[0.05]">
             {recentBookings.map((booking, i) => (
-              <div key={i} className="flex items-center gap-4 px-6 py-3.5 hover:bg-white/3 transition-colors">
+              <div key={i} className="flex items-center gap-4 px-6 py-3.5 hover:bg-white/[0.02] transition-colors">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-xs font-mono text-blue-400">{booking.id}</span>
+                    <span className="text-xs font-mono text-blue-400 font-semibold">{booking.id}</span>
                     <span className="text-sm font-medium text-white truncate">{booking.customer}</span>
                   </div>
-                  <p className="text-xs text-slate-400 truncate">{booking.vehicle}</p>
+                  <p className="text-xs text-slate-500 truncate">{booking.vehicle}</p>
                 </div>
                 <div className="hidden sm:block text-right shrink-0">
-                  <p className="text-xs text-slate-400">{formatDate(booking.start)} → {formatDate(booking.end)}</p>
+                  <p className="text-xs text-slate-500">{formatDate(booking.start)} → {formatDate(booking.end)}</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-semibold text-white">₱{booking.amount.toLocaleString()}</p>
+                  <p className="text-sm font-bold text-white">₱{booking.amount.toLocaleString()}</p>
                 </div>
                 <Badge status={booking.status} />
               </div>
@@ -278,35 +340,23 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.45 }}
-          className="p-6 rounded-2xl border border-white/8 bg-slate-900/60 backdrop-blur-sm"
+          className="p-6 rounded-2xl border border-white/[0.07] bg-slate-900/70 backdrop-blur-sm"
         >
-          <h3 className="text-base font-semibold text-white mb-4">Recent Activity</h3>
+          <h3 className="text-sm font-semibold text-white mb-4">Recent Activity</h3>
           <div className="space-y-4">
             {recentActivity.map((activity, i) => (
               <div key={i} className="flex items-start gap-3">
-                <div className={`mt-0.5 ${activity.color}`}>{activity.icon}</div>
+                <div className="mt-0.5 shrink-0">
+                  <div className={`p-1.5 rounded-lg ${activity.color.replace('text-', 'bg-').replace('400', '500/15')}`}>
+                    <span className={activity.color}>{activity.icon}</span>
+                  </div>
+                </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-slate-300 leading-relaxed">{activity.text}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{activity.time}</p>
+                  <p className="text-xs text-slate-600 mt-0.5">{activity.time}</p>
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* Monthly summary */}
-          <div className="mt-6 pt-4 border-t border-white/8 space-y-2.5">
-            <div className="flex justify-between text-xs">
-              <span className="text-slate-400">Monthly Revenue</span>
-              <span className="text-white font-medium">{formatCurrency(stats.monthlyRevenue, 'PHP')}</span>
-            </div>
-            <div className="flex justify-between text-xs">
-              <span className="text-slate-400">Monthly Expenses</span>
-              <span className="text-rose-400 font-medium">{formatCurrency(stats.monthlyExpenses, 'PHP')}</span>
-            </div>
-            <div className="flex justify-between text-xs pt-2 border-t border-white/8">
-              <span className="text-slate-300 font-medium">Net Profit</span>
-              <span className="text-emerald-400 font-semibold">{formatCurrency(stats.monthlyProfit, 'PHP')}</span>
-            </div>
           </div>
         </motion.div>
       </div>
