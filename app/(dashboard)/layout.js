@@ -16,8 +16,13 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) router.push('/login')
-      else setUser(user)
+      if (!user) {
+        router.push('/login')
+      } else if (user.user_metadata?.role === 'customer') {
+        router.push('/account')
+      } else {
+        setUser(user)
+      }
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {

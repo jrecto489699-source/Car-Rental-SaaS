@@ -75,11 +75,10 @@ export default function LoginPage() {
             <p className="text-sm text-slate-400">Sign in to your DriveFlow account</p>
           </div>
 
-          {/* Demo credentials */}
+          {/* Admin notice */}
           <div className="mb-6 p-3 rounded-xl bg-blue-500/8 border border-blue-500/20">
-            <p className="text-xs text-blue-300 font-medium mb-1">Demo credentials</p>
-            <p className="text-xs text-slate-400">Email: demo@driveflow.app</p>
-            <p className="text-xs text-slate-400">Password: demo1234</p>
+            <p className="text-xs text-blue-300 font-medium mb-1">Admin access only</p>
+            <p className="text-xs text-slate-400">This portal is for fleet managers and administrators.</p>
           </div>
 
           {/* Form */}
@@ -146,11 +145,11 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Register link */}
+          {/* Customer portal link */}
           <p className="mt-6 text-center text-sm text-slate-400">
-            Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
-              Create one free
+            Looking to rent a car?{' '}
+            <Link href="/account" className="text-orange-400 hover:text-orange-300 font-medium transition-colors">
+              Customer portal →
             </Link>
           </p>
         </div>

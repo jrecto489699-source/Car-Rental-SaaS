@@ -33,30 +33,41 @@ export default function CustomerAuthModal({ isOpen, onClose, onSuccess, redirect
 
     setLoading(true)
     try {
+      // Use server-side signup to auto-confirm email
+      const res = await fetch('/api/auth/customer-signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: signupForm.email,
+          password: signupForm.password,
+          full_name: signupForm.name,
+          phone: signupForm.phone,
+        }),
+      })
+      const result = await res.json()
+      if (!res.ok) {
+        if (res.status === 409) {
+          toast.error('Email already registered. Please log in instead.')
+          setTab('login')
+          setLoginForm(f => ({ ...f, email: signupForm.email }))
+          return
+        }
+        throw new Error(result.error || 'Sign up failed')
+      }
+
+      // Sign in immediately after creation
       const supabase = createClient()
-      const { error } = await supabase.auth.signUp({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email: signupForm.email,
         password: signupForm.password,
-        options: {
-          data: {
-            full_name: signupForm.name,
-            phone: signupForm.phone,
-            role: 'customer',
-          }
-        }
       })
-      if (error) throw error
+      if (signInError) throw signInError
+
       toast.success('Account created! You can now book.')
       onSuccess({ name: signupForm.name, email: signupForm.email, phone: signupForm.phone })
       onClose()
     } catch (err) {
-      if (err.message?.includes('already registered')) {
-        toast.error('Email already registered. Please log in instead.')
-        setTab('login')
-        setLoginForm(f => ({ ...f, email: signupForm.email }))
-      } else {
-        toast.error(err.message || 'Sign up failed')
-      }
+      toast.error(err.message || 'Sign up failed')
     } finally {
       setLoading(false)
     }
