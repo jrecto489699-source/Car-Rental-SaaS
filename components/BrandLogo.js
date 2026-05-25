@@ -14,6 +14,7 @@ export default function BrandLogo({ size = 48, dark = false, className = '' }) {
         whiteSpace: 'nowrap',
         fontFamily: 'system-ui, -apple-system, sans-serif',
         letterSpacing: '-0.01em',
+        transition: 'color 0.3s ease',
       }}>
         Car Rental Services
       </span>

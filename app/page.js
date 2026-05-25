@@ -42,7 +42,7 @@ function Navbar() {
         className={`rm-nav ${scrolled ? 'scrolled' : ''}`}>
         <div className="rm-nav-inner">
           <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-            <BrandLogo size={50} />
+            <BrandLogo size={50} dark={!scrolled} />
           </Link>
 
           <div className="rm-nav-links">
