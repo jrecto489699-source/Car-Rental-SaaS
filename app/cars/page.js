@@ -127,14 +127,16 @@ function CarsContent() {
   const [pendingCarId, setPendingCarId] = useState(null)
 
   const handleBook = async (carId) => {
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      router.push(`/cars/${carId}`)
-    } else {
-      setPendingCarId(carId)
-      setAuthModal(true)
-    }
+    setPendingCarId(carId)
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        router.push(`/cars/${carId}`)
+        return
+      }
+    } catch {}
+    setAuthModal(true)
   }
 
   const handleAuthSuccess = () => {

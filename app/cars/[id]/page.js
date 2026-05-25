@@ -62,13 +62,15 @@ export default function CarDetailPage() {
 
   const handleBook = async () => {
     if (!startDate || !endDate) return
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      router.push(`/book/${id}?from=${startDate}&to=${endDate}`)
-    } else {
-      setAuthModal(true)
-    }
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        router.push(`/book/${id}?from=${startDate}&to=${endDate}`)
+        return
+      }
+    } catch {}
+    setAuthModal(true)
   }
 
   const handleAuthSuccess = () => {
